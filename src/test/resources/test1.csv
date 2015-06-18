@@ -1,0 +1,11 @@
+<event name="module_end" package="sqlserver" timestamp="2015-06-17T15:11:56.683Z">
+    <data name="source_database_id">
+        <value>75</value>
+    </data>
+    <data name="object_id">
+        <value>978102525</value>
+    </data>
+    <action name="collect_system_time" package="package0">
+        <value>2015-06-17T15:11:56.683Z</value>
+    </action>
+</event>
