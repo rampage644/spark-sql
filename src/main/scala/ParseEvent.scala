@@ -5,8 +5,10 @@ import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
 
 import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.types.{StructType,StructField,StringType};
 
-class Parser {
+class Parser extends Serializable {
   private var buffer: List[String] = Nil
 
   private def parse(text:String) : Option[Map[String, String]] = {
@@ -47,19 +49,43 @@ class Parser {
 }
 
 object ParseEvent {
-  case class SRow(nt_username: String, row_count: Int)
+  case class SRow(
+    physical_reads: Int = 0,
+    duration: Int = 0,
+    query_hash: String = "",
+    name: String = "",
+    timestamp: String = "",
+    collect_system_time: String = "",
+    logical_reads: Int = 0,
+    object_name: String = "",
+    last_row_count: Int = 0,
+    object_type: String = "",
+    statement: String = "",
+    line_number: Int = 0,
+    row_count: Int = 0,
+    source_database_id: Int = 0,
+    offset: Int = 0,
+    nt_username: String = "",
+    offset_end: Int = 0,
+    database_name: String = "",
+    cpu_time: Int = 0,
+    client_hostname: String = "",
+    writes: Int = 0,
+    query_plan_hash: String = "",
+    object_id: String = "",
+    parameterized_plan_handle: String = "",
+    `package`: String = "") {
+  }
 
   def main(args: Array[String]) {
     val input = "/home/ramp/tmp/test.csv"
     val conf = new SparkConf().setAppName("SQL-on-xml")
     val sc = new SparkContext(conf)
-    val sqlContext = new SQLContext(sc)
-
+    val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     import sqlContext.implicits._
+
     val parser = new Parser()
-    val table = sc.textFile(input, 2).flatMap(parser.parseIncrementally).map(values => SRow(values("nt_username"), values("row_count").toInt)).toDF
-    table.registerTempTable("SRows")
-    val res = sqlContext.sql("SELECT count(*) FROM SRows")
-    print (res.collectAsList())
+    val table = sc.textFile(input, 2).flatMap(parser.parseIncrementally).map(vals => SRow.tupled(vals.))
+    table.saveAsTextFile("output.txt")
   }
 }
