@@ -1,0 +1,17 @@
+﻿<event name="sql_statement_completed" package="sqlserver" timestamp="2015-06-17T15:11:56.688Z"><data name="duration"><value>308</value></data><data name="cpu_time"><value>0</value></data><data name="physical_reads"><value>0</value></data><data name="logical_reads"><value>0</value></data><data name="writes"><value>0</value></data><data name="row_count"><value>5</value></data><data name="last_row_count"><value>5</value></data><data name="line_number"><value>1</value></data><data name="offset"><value>0</value></data><data name="offset_end"><value>-1</value></data><data name="statement"><value>select 
+case 
+	when cfg.configuration_id = 124 -- configuration id for default language
+	then (select lcid from sys.syslanguages as sl where sl.langid = cfg.value_in_use) -- getting default language LCID from default language langid
+	else cfg.value_in_use
+end as value,
+case 
+	when cfg.configuration_id = 124 -- configuration id for default language
+	then (select name collate catalog_default from sys.syslanguages as sl where sl.langid = cfg.value_in_use) -- getting default language name from default language langid
+	when cfg.configuration_id = 1126 -- configuration id for default fulltext language
+	then ISNULL((select name collate catalog_default from sys.fulltext_languages as fl where fl.lcid = cfg.value_in_use), N'') -- getting default fulltext language name from default fulltext language lcid
+	else null
+end as name,
+cfg.configuration_id as configuration_id
+from sys.configurations as cfg
+where cfg.configuration_id in (115, 124, 1126, 1127, 1555) 
+order by cfg.configuration_id asc</value></data><data name="parameterized_plan_handle"><value /></data><action name="collect_system_time" package="package0"><value>2015-06-17T15:11:56.689Z</value></action><action name="nt_username" package="sqlserver"><value>RACKSPACE\rahu1923</value></action><action name="client_hostname" package="sqlserver"><value>496861-ETL6</value></action><action name="database_name" package="sqlserver"><value>master</value></action><action name="query_hash" package="sqlserver"><value>11713244435378585915</value></action><action name="query_plan_hash" package="sqlserver"><value>16835222660611830472</value></action></event>

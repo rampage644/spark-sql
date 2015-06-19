@@ -1,10 +1,8 @@
 import org.scalatest.{FunSpec, Matchers}
 import scala.io.Source
 
-import ParseEvent.parse
-
 class ParseEventTest extends  FunSpec with Matchers {
-  describe ("parseXML") {
+  describe ("Parser class") {
     it ("should parse XML") {
       val file = getClass getResource "test1.csv"
       val text = Source.fromURL(file).mkString
@@ -17,14 +15,14 @@ class ParseEventTest extends  FunSpec with Matchers {
         ("collect_system_time", "2015-06-17T15:11:56.683Z")
       )
 
-      parse(text) should be (data)
+      new Parser().parseIncrementally(text) should be (Some(data))
     }
 
     it ("should work with XML as one line") {
       val file = getClass getResource "test2.csv"
       val text = Source.fromURL(file).mkString
 
-      parse(text) should not be (Map())
+      new Parser().parseIncrementally(text) should not be (None)
 
     }
 
@@ -36,7 +34,13 @@ class ParseEventTest extends  FunSpec with Matchers {
       val file = getClass getResource "test3.csv"
       val text = Source.fromURL(file).mkString
 
-      parse(text) should be (Map())
+      new Parser().parseIncrementally(text) should be (None)
+    }
+
+    it ("should process multiline xml") {
+      val file = getClass getResource "test4.csv"
+      val parser = new Parser()
+      Source.fromURL(file).getLines().flatMap(parser.parseIncrementally).next() should not be (None)
     }
   }
 }
