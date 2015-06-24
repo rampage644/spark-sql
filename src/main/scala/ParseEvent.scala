@@ -77,6 +77,36 @@ object ParseEvent {
     `package`: String = "") {
   }
 
+  def createSRow(values: Map[String, String]) = {
+    SRow(
+      values.getOrElse("physical_reads", "0").toInt,
+      values.getOrElse("duration", "0").toInt,
+      values.getOrElse("query_hash", ""),
+      values.getOrElse("name", ""),
+      values.getOrElse("timestamp", ""),
+      values.getOrElse("collect_system_time", ""),
+      values.getOrElse("logical_reads", "0").toInt,
+      values.getOrElse("object_name", ""),
+      values.getOrElse("last_row_count", "0").toInt,
+      values.getOrElse("object_type", ""),
+      values.getOrElse("statement", ""),
+      values.getOrElse("line_number", "0").toInt,
+      values.getOrElse("row_count", "0").toInt,
+      values.getOrElse("source_database_id", "0").toInt,
+      values.getOrElse("offset", "0").toInt,
+      values.getOrElse("nt_username", ""),
+      values.getOrElse("offset_end", "0").toInt,
+      values.getOrElse("database_name", ""),
+      values.getOrElse("cpu_time", "0").toInt,
+      values.getOrElse("client_hostname", ""),
+      values.getOrElse("writes", "0").toInt,
+      values.getOrElse("query_plan_hash", ""),
+      values.getOrElse("object_id", ""),
+      values.getOrElse("parameterized_plan_handle", ""),
+      values.getOrElse("package", "")
+    )
+  }
+
   def main(args: Array[String]) {
     val input = "/home/ramp/tmp/test.csv"
     val conf = new SparkConf().setAppName("SQL-on-xml")
@@ -85,7 +115,7 @@ object ParseEvent {
     import sqlContext.implicits._
 
     val parser = new Parser()
-    val table = sc.textFile(input, 2).flatMap(parser.parseIncrementally).map(vals => SRow.tupled(vals.))
-    table.saveAsTextFile("output.txt")
+    val table = sc.textFile(input, 2).flatMap(parser.parseIncrementally).map(createSRow).toDF
+    table.saveAsParquetFile("srows.parquet")
   }
 }
